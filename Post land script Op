@@ -1,0 +1,41 @@
+-- :: --
+local Player = game:GetService("Players").LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Events = ReplicatedStorage:WaitForChild("Events")
+
+-- :: --
+local Vitals = Player:WaitForChild("PlayerData"):WaitForChild("Vitals") -- Used for automatic vital healing
+local Consume = Events:WaitForChild("Consume")
+-- :: --
+
+task.spawn(function()
+	while task.wait() do
+		if Player and Player.Character then
+			Player.Character:WaitForChild("Humanoid").WalkSpeed = 38
+			Player.Character:WaitForChild("Humanoid").JumpPower = 90
+			local Percent = (Player.Character:WaitForChild("Humanoid").Health / Player.Character:WaitForChild("Humanoid").MaxHealth)
+			if Percent <= 0.5 then
+				Consume:FireServer("Health Potion")
+				task.wait(0.5)
+			end
+		end
+	end
+end)
+
+Vitals:WaitForChild("Hunger").Changed:Connect(function()
+	if Vitals.Hunger.Value <= 40 then
+		repeat
+			Consume:FireServer("Cooked Meat")
+			task.wait(0.5)
+		until Vitals.Hunger.Value >= 100
+	end
+end)
+
+Vitals:WaitForChild("Thirst").Changed:Connect(function()
+	if Vitals.Thirst.Value <= 40 then
+		repeat
+			Consume:FireServer("Water")
+			task.wait(0.5)
+		until Vitals.Thirst.Value >= 100
+	end
+end)
